@@ -8,7 +8,7 @@ const google_font = IBM_Plex_Sans_Thai({
 });
 
 export const metadata: Metadata = {
-  title: "Exxon AI by Exxy <3",
+  title: "Exxon AI by H2TPAS",
   description: "Exxon Assistance",
 };
 

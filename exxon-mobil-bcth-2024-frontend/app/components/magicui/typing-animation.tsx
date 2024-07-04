@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { cn } from "@/app/lib/utils";
+import React from "react";
 
 interface TypingAnimationProps {
   text: string;
@@ -12,21 +13,18 @@ interface TypingAnimationProps {
 
 export default function TypingAnimation({
   text,
-  duration = 120,
+  duration = 15,
   className,
 }: TypingAnimationProps) {
-  const [showTyping, setShowTyping] = useState(false);
   const [displayedText, setDisplayedText] = useState<string>("");
   const [i, setI] = useState<number>(0);
 
   useEffect(() => {
     const typingEffect = setInterval(() => {
       if (i < text.length) {
-        setShowTyping(true);
         setDisplayedText(text.substring(0, i + 1));
         setI(i + 1);
       } else {
-        setShowTyping(false);
         clearInterval(typingEffect);
       }
     }, duration);
@@ -37,13 +35,13 @@ export default function TypingAnimation({
   }, [duration, i]);
 
   return (
-    <h1
-      className={cn(
-        "tracking-[-0.02em]",
-        className
-      )}
-    >
-      {displayedText ? displayedText : text}{showTyping && "|"}
+    <h1 className={cn("tracking-[-0.02em]", className)}>
+      {displayedText.split("\n").map((line, index) => (
+        <React.Fragment key={index}>
+          {line}
+          <br />
+        </React.Fragment>
+      ))}
     </h1>
   );
 }

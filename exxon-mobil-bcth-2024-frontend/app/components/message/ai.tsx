@@ -1,3 +1,4 @@
+import React from "react";
 import TypingAnimation from "../magicui/typing-animation";
 
 export default function MessageAI({
@@ -19,12 +20,26 @@ export default function MessageAI({
   };
 
   return (
-    <div className="flex gap-4 justify-between items-center w-full p-4 rounded-2xl bg-white mb-4">
-      <div className="flex gap-4 items-center">
+    <div className="flex gap-4 justify-between items-start w-full p-4 rounded-2xl bg-white mb-4">
+      <div className="flex gap-4 items-start">
         <img src="/ai_star.svg" />
-        <div>{is_lastest ? <TypingAnimation text={text} /> : text}</div>
+        <div>
+          {is_lastest ? (
+            <TypingAnimation text={text} />
+          ) : (
+            text.split("\n").map((line, index) => (
+              <React.Fragment key={index}>
+                {line}
+                <br />
+              </React.Fragment>
+            ))
+          )}
+        </div>
       </div>
-      <div className="cursor-pointer" onClick={() => copyToClipboard()}>
+      <div
+        className="cursor-pointer flex justify-start items-start"
+        onClick={() => copyToClipboard()}
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"

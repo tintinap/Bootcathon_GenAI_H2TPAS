@@ -19,7 +19,8 @@ export default function Home() {
   //     role: "user",
   //   },
   //   {
-  //     content: "Hello! How can I help you today?",
+  //     content:
+  //       "Based on the provided context, the top 10 albums by sales are:\n\n1. Minha Historia - TotalSales: 27\n2. Greatest Hits - TotalSales: 26\n3. Unplugged - TotalSales: 25\n4. Acústico - TotalSales: 22\n5. Greatest Kiss - TotalSales: 20\n6. Prenda Minha - TotalSales: 19\n7. Chronicle, Vol. 2 - TotalSales: 19\n8. My Generation - The Very Best Of The Who - TotalSales: 19\n9. International Superhits - TotalSales: 18\n10. Chronicle, Vol. 1 - TotalSales: 18",
   //     role: "assistant",
   //   },
   // ]);
@@ -33,16 +34,16 @@ export default function Home() {
     scrollDown();
   }, []);
 
-  useEffect(() => {
-    if (
-      chatHistory.length > 0 &&
-      chatHistory[chatHistory.length - 1].role === "user"
-    ) {
-      setTimeout(() => {
-        exxyReply();
-      }, 3000);
-    }
-  }, [chatHistory]);
+  // useEffect(() => {
+  //   if (
+  //     chatHistory.length > 0 &&
+  //     chatHistory[chatHistory.length - 1].role === "user"
+  //   ) {
+  //     setTimeout(() => {
+  //       exxyReply();
+  //     }, 3000);
+  //   }
+  // }, [chatHistory]);
 
   const handleKeyDown = (event: any) => {
     if (event.key === "Enter" && !event.shiftKey) {
@@ -58,39 +59,49 @@ export default function Home() {
     }
   }
 
-  async function askExxy() {
-    // call API
-    let tmp = [...chatHistory];
-    tmp.push({ content: prompt, role: "user" });
+  async function askExxy(quickReply?: string) {
+    const res = await fetch("http://127.0.0.1:5000/ask-typhoon", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        history: chatHistory,
+        recent: { content: quickReply ? quickReply : prompt, role: "user" },
+      }),
+    });
+
+    const data = await res.json();
+
     setIsLoading(true);
-    setChatHistory(tmp);
+    setChatHistory([...chatHistory, data.message]);
     setPrompt("");
-  }
-
-  function exxyReply() {
-    let tmp = [...chatHistory];
-    if (chatHistory[chatHistory.length - 1].content === "ริว") {
-      tmp.push({
-        content: "ไอ้ริว ​ฮ่า ๆๆ",
-        role: "assistant",
-      });
-    } else {
-      tmp.push({
-        content: "ฉันไม่เข้าใจว่าคุณกำลังพูดถึงอะไร โปรดถามอีกครั้งได้ไหม ?",
-        role: "assistant",
-      });
-    }
-    setChatHistory(tmp);
-    setIsLoading(false);
-
     scrollDown();
   }
+
+  // function exxyReply() {
+  //   let tmp = [...chatHistory];
+  //   if (chatHistory[chatHistory.length - 1].content === "ริว") {
+  //     tmp.push({
+  //       content: "ไอ้ริว ​ฮ่า ๆๆ",
+  //       role: "assistant",
+  //     });
+  //   } else {
+  //     tmp.push({
+  //       content: "ฉันไม่เข้าใจว่าคุณกำลังพูดถึงอะไร โปรดถามอีกครั้งได้ไหม ?",
+  //       role: "assistant",
+  //     });
+  //   }
+  //   setChatHistory(tmp);
+  //   setIsLoading(false);
+
+  //   scrollDown();
+  // }
 
   return (
     <div className="w-dvw h-dvh overflow-hidden text-[#737373]">
       <section className="text-black flex items-center justify-between h-[80px] bg-white border-b px-6">
         <div>
-          {/* <Sparkles text="" /> */}
           <img src="/logo.svg" />
         </div>
         <div>
@@ -153,6 +164,7 @@ export default function Home() {
             </div>
           </div>
         </div>
+
         {/*  */}
         <div
           ref={scrollableDivRef}
@@ -170,7 +182,9 @@ export default function Home() {
               <div className="flex gap-6 justify-evenly py-10 flex-wrap">
                 <SuggestCard
                   onClick={() => {
-                    console.log("test");
+                    askExxy(
+                      "the most sold product in the last month of ExxonMobil lubricants"
+                    );
                   }}
                 >
                   the{" "}
@@ -181,7 +195,9 @@ export default function Home() {
                 </SuggestCard>
                 <SuggestCard
                   onClick={() => {
-                    console.log("test");
+                    askExxy(
+                      "Which Distributor had the highest sales in the past half year?"
+                    );
                   }}
                 >
                   Which{" "}
@@ -196,7 +212,9 @@ export default function Home() {
                 </SuggestCard>
                 <SuggestCard
                   onClick={() => {
-                    console.log("test");
+                    askExxy(
+                      "The less sold product in the last year of ExxonMobil lubricants"
+                    );
                   }}
                 >
                   The{" "}
@@ -207,7 +225,9 @@ export default function Home() {
                 </SuggestCard>
                 <SuggestCard
                   onClick={() => {
-                    console.log("test");
+                    askExxy(
+                      "A report summarizing the total product sales of ExxonMobil lubricants for 2024"
+                    );
                   }}
                 >
                   A{" "}
@@ -233,7 +253,7 @@ export default function Home() {
                   is_lastest={false}
                 />
               );
-            } else {
+            } else if (chat.role === "assistant") {
               return (
                 <MessageAI
                   key={index}
