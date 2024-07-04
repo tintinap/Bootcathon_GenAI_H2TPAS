@@ -60,7 +60,7 @@ interface SparklesTextProps {
   };
 }
 
-const Sparkles: React.FC<SparklesTextProps> = ({
+const SparklesText: React.FC<SparklesTextProps> = ({
   text,
   colors = { first: "#FE000D", second: "#FE4926" },
   className,
@@ -106,7 +106,7 @@ const Sparkles: React.FC<SparklesTextProps> = ({
 
   return (
     <div
-      className={cn("text-6xl font-bold", className)}
+      className={cn("text-lg font-bold", className)}
       {...props}
       style={
         {
@@ -120,7 +120,7 @@ const Sparkles: React.FC<SparklesTextProps> = ({
           <Sparkle key={sparkle.id} {...sparkle} />
         ))}
         <strong className="bg-gradient-to-r from-[var(--sparkles-first-color)] to-[var(--sparkles-second-color)] bg-clip-text text-transparent">
-            <img className="z-40" src="/logo.svg" />
+            {text}
         </strong>
       </span>
     </div>
@@ -151,4 +151,4 @@ const Sparkle: React.FC<Sparkle> = ({ id, x, y, color, delay, scale }) => {
   );
 };
 
-export default Sparkles;
+export default SparklesText;
