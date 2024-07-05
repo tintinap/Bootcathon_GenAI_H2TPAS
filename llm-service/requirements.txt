@@ -1,5 +1,6 @@
 requests==2.32.2
 flask==3.0.3
+flask-cors==4.0.1
 pandas==2.2.2
 vanna==0.6.2
 
