@@ -68,7 +68,6 @@ export default function Home() {
         role: "user",
       },
     ]);
-    setPrompt("");
 
     const res = await fetch("http://127.0.0.1:5000/ask-typhoon", {
       method: "POST",
@@ -83,6 +82,7 @@ export default function Home() {
 
     const data = await res.json();
     setChatHistory([...chatHistory, data[data.length - 1]]);
+    setPrompt("");
     scrollDown();
   }
 
