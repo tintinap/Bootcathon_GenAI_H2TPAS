@@ -60,6 +60,16 @@ export default function Home() {
   }
 
   async function askExxy(quickReply?: string) {
+    setIsLoading(true);
+    setChatHistory([
+      ...chatHistory,
+      {
+        content: prompt,
+        role: "user",
+      },
+    ]);
+    setPrompt("");
+
     const res = await fetch("http://127.0.0.1:5000/ask-typhoon", {
       method: "POST",
       headers: {
@@ -72,10 +82,7 @@ export default function Home() {
     });
 
     const data = await res.json();
-
-    setIsLoading(true);
-    setChatHistory([...chatHistory, data.message]);
-    setPrompt("");
+    setChatHistory([...chatHistory, data[data.length - 1]]);
     scrollDown();
   }
 
