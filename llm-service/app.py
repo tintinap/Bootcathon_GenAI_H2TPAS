@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS, cross_origin
 
 from langchain_community.vectorstores import Chroma
 
@@ -218,7 +219,7 @@ def ask_and_call_typhoon(req):
 
     # if no answer then ask vanna first then return final the answer
     # call vanna
-    if 'CANTTT' in latest_response[-1]['content'] or ' unable ' in latest_response[-1]['content'] or ' sorry ' in latest_response[-1]['content']:
+    if 'CANTTT' in latest_response[-1]['content'] or ' unable ' in latest_response[-1]['content'] or ' sorry ' in latest_response[-1]['content'] or 'As an AI language model' in latest_response[-1]['content']:
         print('CANTT found')
         print("Call VannaAI Successfully.")
         retrieved_table_markdown = call_vanna(query_text)
@@ -250,7 +251,8 @@ def ask_and_call_typhoon(req):
 
 # ===============================================================================================================================================================================
 app = Flask(__name__)
-
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 # ===============================================================================================================================================================================
 
@@ -271,16 +273,20 @@ def rag():
 
 
 @app.route("/ask-typhoon", methods=["POST"])
+@cross_origin()
 def ask_typhoon():
+
+    rag_preparing()
+
     request_data = request.get_json()
-    if request_data['history'] == None:
+    if request_data['history'] == None or request_data['history'] == []:
         print("1st time")
     try:
 
         response = ask_and_call_typhoon(request_data)
     
         return jsonify(response), 200
-    except IndexError:
+    except KeyError:
         print("Error in Indx Typhoon")
         rag_preparing()
         ask_typhoon(request_data)
