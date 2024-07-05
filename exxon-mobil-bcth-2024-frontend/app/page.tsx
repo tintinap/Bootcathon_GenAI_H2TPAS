@@ -65,8 +65,10 @@ export default function Home() {
       },
     ];
     setChatHistory(newChatHistory);
+    setPrompt("");
 
     try {
+      scrollDown();
       const res = await fetch("http://127.0.0.1:5000/ask-typhoon", {
         method: "POST",
         headers: {
@@ -87,7 +89,6 @@ export default function Home() {
     } catch (error) {
       console.error("Error:", error);
     } finally {
-      setPrompt("");
       setIsLoading(false);
       scrollDown();
     }
@@ -203,9 +204,7 @@ export default function Home() {
                 </SuggestCard>
                 <SuggestCard
                   onClick={() => {
-                    askExxy(
-                      "What are Mobil SHC 600 Series Product features ?"
-                    );
+                    askExxy("What are Mobil SHC 600 Series Product features ?");
                   }}
                 >
                   What are Mobil SHC 600 Series Product features ?
