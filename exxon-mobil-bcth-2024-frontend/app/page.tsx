@@ -60,30 +60,42 @@ export default function Home() {
   }
 
   async function askExxy(quickReply?: string) {
+    const prompt = quickReply || "";
     setIsLoading(true);
-    setChatHistory([
+    const newChatHistory = [
       ...chatHistory,
       {
         content: prompt,
         role: "user",
       },
-    ]);
+    ];
+    setChatHistory(newChatHistory);
 
-    const res = await fetch("http://127.0.0.1:5000/ask-typhoon", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        history: chatHistory,
-        recent: { content: quickReply ? quickReply : prompt, role: "user" },
-      }),
-    });
+    try {
+      const res = await fetch("http://127.0.0.1:5000/ask-typhoon", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          history: chatHistory,
+          recent: { content: quickReply ? quickReply : prompt, role: "user" },
+        }),
+      });
 
-    const data = await res.json();
-    setChatHistory([...chatHistory, data[data.length - 1]]);
-    setPrompt("");
-    scrollDown();
+      if (!res.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await res.json();
+      setChatHistory([...newChatHistory, data[data.length - 1]]);
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setPrompt("");
+      setIsLoading(false);
+      scrollDown();
+    }
   }
 
   // function exxyReply() {
