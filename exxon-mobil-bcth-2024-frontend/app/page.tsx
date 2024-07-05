@@ -13,17 +13,7 @@ export interface IChatHistory {
 }
 
 export default function Home() {
-  // const [chatHistory, setChatHistory] = useState([
-  //   {
-  //     content: "hi",
-  //     role: "user",
-  //   },
-  //   {
-  //     content:
-  //       "Based on the provided context, the top 10 albums by sales are:\n\n1. Minha Historia - TotalSales: 27\n2. Greatest Hits - TotalSales: 26\n3. Unplugged - TotalSales: 25\n4. Acústico - TotalSales: 22\n5. Greatest Kiss - TotalSales: 20\n6. Prenda Minha - TotalSales: 19\n7. Chronicle, Vol. 2 - TotalSales: 19\n8. My Generation - The Very Best Of The Who - TotalSales: 19\n9. International Superhits - TotalSales: 18\n10. Chronicle, Vol. 1 - TotalSales: 18",
-  //     role: "assistant",
-  //   },
-  // ]);
+  const [rag, setRag] = useState(false);
   const [chatHistory, setChatHistory] = useState<IChatHistory[]>([]);
   const [prompt, setPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -34,16 +24,21 @@ export default function Home() {
     scrollDown();
   }, []);
 
-  // useEffect(() => {
-  //   if (
-  //     chatHistory.length > 0 &&
-  //     chatHistory[chatHistory.length - 1].role === "user"
-  //   ) {
-  //     setTimeout(() => {
-  //       exxyReply();
-  //     }, 3000);
-  //   }
-  // }, [chatHistory]);
+  useEffect(() => {
+    if (!rag) {
+      try {
+        fetch("http://127.0.0.1:5000/rag", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        setRag(true);
+      } catch {
+        console.log("rag boom !");
+      }
+    }
+  }, [rag]);
 
   const handleKeyDown = (event: any) => {
     if (event.key === "Enter" && !event.shiftKey) {
