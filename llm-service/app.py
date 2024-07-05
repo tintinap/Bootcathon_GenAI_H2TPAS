@@ -276,7 +276,7 @@ def rag():
 @cross_origin()
 def ask_typhoon():
 
-    rag_preparing()
+    # rag_preparing()
 
     request_data = request.get_json()
     if request_data['history'] == None or request_data['history'] == []:
