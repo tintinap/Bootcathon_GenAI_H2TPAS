@@ -55,12 +55,12 @@ export default function Home() {
   }
 
   async function askExxy(quickReply?: string) {
-    const prompt = quickReply || "";
+    const tmpPrompt = quickReply ? quickReply : prompt;
     setIsLoading(true);
     const newChatHistory = [
       ...chatHistory,
       {
-        content: prompt,
+        content: tmpPrompt,
         role: "user",
       },
     ];
@@ -74,7 +74,7 @@ export default function Home() {
         },
         body: JSON.stringify({
           history: chatHistory,
-          recent: { content: quickReply ? quickReply : prompt, role: "user" },
+          recent: { content: tmpPrompt, role: "user" },
         }),
       });
 
