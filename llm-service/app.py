@@ -100,16 +100,17 @@ def rag_preparing():
 def call_vanna(query_text:str):
     # temp
     #in case there is df from Vanna
-    # Creating the dataframe from the provided markdown string
     data = {
-        'AlbumId': [23, 141, 73, 224, 37, 21, 55, 221, 39, 54],
-        'Title': [
-            'Minha Historia', 'Greatest Hits', 'Unplugged', 'Acústico',
-            'Greatest Kiss', 'Prenda Minha', 'Chronicle, Vol. 2',
-            'My Generation - The Very Best Of The Who', 'International Superhits',
-            'Chronicle, Vol. 1'
+        'ProductSKU': [
+            'Blue - Large 4L - 5L', 'Charcoal - Large 4L - 5L', 'Gold - Large 4L', 'Mobil 1 Gold 4L - 6L', 'Mobil Delvac Modern 7L',
+            'Mobil Super AIO - 7L', 'Mobil Super AIO 3L - 6L', 'Mobil Super FF 4L - 7L',
+            'Mobil_Delvac_Legend_6L_-_7L', 'Silver - Large 4L'],
+        'ProductName': [
+            'Blue Large', 'Mobil Super AIO', 'Gold Large', 'Mobil 1 Gold', 'Mobil Delvac Modern',
+            'Mobil Super AIO - Charcoal', 'Mobil Super AIO', 'Mobil Super FF',
+            'Mobil Delvac Legend', 'Silver Large'
         ],
-        'TotalSales': [27, 26, 25, 22, 20, 19, 19, 19, 18, 18]
+        'TotalScan': [500, 11730, 5336, 3589, 24739, 12618, 376, 137394, 6685, 12689]
     }
 
     df = pd.DataFrame(data)
