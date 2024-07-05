@@ -2,3 +2,5 @@ requests==2.32.2
 flask==3.0.3
 pandas==2.2.2
 vanna==0.6.2
+
+# still not complete
