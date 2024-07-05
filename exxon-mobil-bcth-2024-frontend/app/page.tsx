@@ -93,25 +93,6 @@ export default function Home() {
     }
   }
 
-  // function exxyReply() {
-  //   let tmp = [...chatHistory];
-  //   if (chatHistory[chatHistory.length - 1].content === "ริว") {
-  //     tmp.push({
-  //       content: "ไอ้ริว ​ฮ่า ๆๆ",
-  //       role: "assistant",
-  //     });
-  //   } else {
-  //     tmp.push({
-  //       content: "ฉันไม่เข้าใจว่าคุณกำลังพูดถึงอะไร โปรดถามอีกครั้งได้ไหม ?",
-  //       role: "assistant",
-  //     });
-  //   }
-  //   setChatHistory(tmp);
-  //   setIsLoading(false);
-
-  //   scrollDown();
-  // }
-
   return (
     <div className="w-dvw h-dvh overflow-hidden text-[#737373]">
       <section className="text-black flex items-center justify-between h-[80px] bg-white border-b px-6">
@@ -197,7 +178,7 @@ export default function Home() {
                 <SuggestCard
                   onClick={() => {
                     askExxy(
-                      "the most sold product in the last month of ExxonMobil lubricants"
+                      "the most sold product in the 30 days ago of ExxonMobil lubricants"
                     );
                   }}
                 >
@@ -205,37 +186,29 @@ export default function Home() {
                   <span className="font-bold text-[#D20002]">
                     most sold product
                   </span>{" "}
-                  in the <b>last month</b> of ExxonMobil lubricants
+                  in the <b>30 days ago</b> of ExxonMobil lubricants
                 </SuggestCard>
                 <SuggestCard
                   onClick={() => {
                     askExxy(
-                      "Which Distributor had the highest sales in the past half year?"
+                      "what are the top 5 products by total scan? rank them for me?"
                     );
                   }}
                 >
-                  Which{" "}
+                  what are{" "}
                   <span className="font-bold text-[#D20002] uppercase">
-                    Distributor
+                    the top 5 products
                   </span>{" "}
-                  had the{" "}
-                  <span className="font-bold text-[#D20002] uppercase">
-                    highest sales
-                  </span>{" "}
-                  in the <b>past half</b> year?
+                  by total scan? rank them for me
                 </SuggestCard>
                 <SuggestCard
                   onClick={() => {
                     askExxy(
-                      "The less sold product in the last year of ExxonMobil lubricants"
+                      "What are Mobil SHC 600 Series Product features ?"
                     );
                   }}
                 >
-                  The{" "}
-                  <span className="font-bold text-[#D20002] uppercase">
-                    less sold product
-                  </span>{" "}
-                  in the <b>last year</b> of ExxonMobil lubricants
+                  What are Mobil SHC 600 Series Product features ?
                 </SuggestCard>
                 <SuggestCard
                   onClick={() => {
