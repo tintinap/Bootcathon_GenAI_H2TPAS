@@ -25,7 +25,9 @@ import requests
 import json
 
 
-from constants import MARKDOWN_PATH, CHROMA_PATH, DATA_PATH, TYPHOON_API_KEY
+from constants import CHROMA_PATH, DATA_PATH
+# in case u pull it 1st time just create api_key.py file and add TYPHOON_API_KEY str variable in it
+from api_key import TYPHOON_API_KEY
 
 
 # function
@@ -174,7 +176,7 @@ def ask_and_call_typhoon(req):
 
     # example req
     # req = {
-    #     "history": None,
+    #     "history": [],
     #     "recent": {
     #         "content": "what are the top 10 albums by sales?",
     #         # "content": "What are Mobil SHC 600 Series Product features",
@@ -266,9 +268,7 @@ def index():
 
 @app.route("/rag", methods=["POST"])
 def rag():  
-
     rag_preparing()
-
     return "done RAG", 201
 
 
