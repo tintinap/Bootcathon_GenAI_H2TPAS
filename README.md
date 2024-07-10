@@ -1,14 +1,14 @@
 # exxon-mobil-bcth-2024
 
 ## Project Environment
+- Using Python version 3.12.4
+- Using npm version 10.7.0
+- Using Node.js version v22.1.0
 
 ### - Installation for LLM Service
-- Using Python version 3.12.4
 - Go to LLM Service folder then type `pip install -r requirements.txt`
 
 ### - Installation for Frontend
-- Using npm version 10.7.0
-- Using Node.js version v22.1.0
 - Go to frontend folder then type `npm install`
 
 ## How to run application
