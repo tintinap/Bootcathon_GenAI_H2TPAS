@@ -5,7 +5,6 @@ from langchain_community.vectorstores import Chroma
 
 
 from langchain_community.document_loaders import PyPDFDirectoryLoader
-from langchain_community.document_loaders import UnstructuredMarkdownLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import re
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -147,7 +146,7 @@ def search_vectorstores(query_text:str) -> str:
 
 
 def call_typhoon(query_text, context_list):
-    print(context_list)
+    print("context_list", context_list)
     endpoint = 'https://api.opentyphoon.ai/v1/chat/completions'
     context_list.append({"content": query_text, "role": "user"})
     res = requests.post(endpoint, json={
@@ -168,6 +167,10 @@ def call_typhoon(query_text, context_list):
     context_list.append(response['choices'][0]['message'])
     print("===================== Finish ========================")
     return context_list
+
+def should_call_vanna(content_string:str) -> bool:
+
+    return 'CANTTT' in content_string or ' unable ' in content_string or 'sorry ' in content_string or 'an AI language model' in content_string
 
 
 def ask_and_call_typhoon(req):
@@ -221,7 +224,8 @@ def ask_and_call_typhoon(req):
 
     # if no answer then ask vanna first then return final the answer
     # call vanna
-    if 'CANTTT' in latest_response[-1]['content'] or ' unable ' in latest_response[-1]['content'] or ' sorry ' in latest_response[-1]['content'] or 'As an AI language model' in latest_response[-1]['content']:
+    if  should_call_vanna(latest_response[-1]['content']):
+        print("original latest_response[-1]['content'] :", latest_response[-1]['content'])
         print('CANTT found')
         print("Call VannaAI Successfully.")
         retrieved_table_markdown = call_vanna(query_text)
