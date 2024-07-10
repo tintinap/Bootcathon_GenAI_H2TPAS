@@ -1,2 +1,4 @@
-/llm-service/__pycache__/
+
+/llm-service/__pycache__
+/llm-service/__pycache__/**
 /llm-service/api_key.py
