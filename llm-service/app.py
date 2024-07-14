@@ -16,6 +16,7 @@ import os
 from langchain_huggingface import HuggingFaceEmbeddings
 
 import pandas as pd
+from vanna.remote import VannaDefault
 
 from langchain.docstore.document import Document
 
@@ -24,9 +25,9 @@ import requests
 import json
 
 
-from constants import CHROMA_PATH, DATA_PATH
+from constants import CHROMA_PATH, DATA_PATH, VANNA_MODEL_NAME, DB_PATH
 # in case u pull it 1st time just create api_key.py file and add TYPHOON_API_KEY str variable in it
-from api_key import TYPHOON_API_KEY
+from api_key import TYPHOON_API_KEY, VANNA_API_KEY
 
 
 # function
@@ -99,36 +100,18 @@ def rag_preparing():
 
 
 # ============ call_typhoon ==================================================================
-def call_vanna(query_text:str):
-    # temp
-    #in case there is df from Vanna
-    data = {
-        'ProductSKU': [
-            'Blue - Large 4L - 5L', 'Charcoal - Large 4L - 5L', 'Gold - Large 4L', 'Mobil 1 Gold 4L - 6L', 'Mobil Delvac Modern 7L',
-            'Mobil Super AIO - 7L', 'Mobil Super AIO 3L - 6L', 'Mobil Super FF 4L - 7L',
-            'Mobil_Delvac_Legend_6L_-_7L', 'Silver - Large 4L'],
-        'ProductName': [
-            'Blue Large', 'Mobil Super AIO', 'Gold Large', 'Mobil 1 Gold', 'Mobil Delvac Modern',
-            'Mobil Super AIO - Charcoal', 'Mobil Super AIO', 'Mobil Super FF',
-            'Mobil Delvac Legend', 'Silver Large'
-        ],
-        'TotalScan': [500, 11730, 5336, 3589, 24739, 12618, 376, 137394, 6685, 12689]
-    }
-
-    df = pd.DataFrame(data)
-
-    # save to markdown file
-    markdown_table = df.to_markdown(index=False)
-    return markdown_table # return markdown table string or None
-
 def format_retrieved_documents(data_list: list[tuple[Document]]) -> str:
+    print('data_list:', data_list)
     retrieved_documents = ""
     for item in data_list:
         # Extract the 'content' and 'sourcepage' values
+        print('item:', item)
         content = item[0].page_content
-        sourcepage = f"{item[0].metadata['source']}-page{item[0].metadata['page']}"
-        retrieved_documents += "sourcepage: " + sourcepage + ", content: " + content + "\n"
-
+        source = f"{item[0].metadata['source']}-page{item[0].metadata['page']}"
+        retrieved_documents += "source -> " + source + ", content -> " + content + "\n"
+        print()
+        print("source: " + source)
+        print()
     return retrieved_documents
 
 def search_vectorstores(query_text:str) -> str:
@@ -144,6 +127,20 @@ def search_vectorstores(query_text:str) -> str:
         print('error in search vector stores')
         return ''
 
+def call_vanna(query_text:str):
+
+    vn = VannaDefault(model=VANNA_MODEL_NAME, api_key=VANNA_API_KEY)
+    vn.connect_to_sqlite(DB_PATH)
+    vanna_response = vn.ask(query_text, visualize=False, allow_llm_to_see_data=True)
+
+    markdown_table = None
+    #in case there is df from Vanna
+    if vanna_response is not None:
+        sql, df, fig = vanna_response
+
+        # save to markdown file
+        markdown_table = df.to_markdown(index=False)
+    return markdown_table # return markdown table string or None
 
 def call_typhoon(query_text, context_list):
     print("context_list", context_list)
@@ -169,8 +166,11 @@ def call_typhoon(query_text, context_list):
     return context_list
 
 def should_call_vanna(content_string:str) -> bool:
-
-    return 'CANTTT' in content_string or ' unable ' in content_string or 'sorry ' in content_string or 'an AI language model' in content_string
+    return 'CANTTT' in content_string or \
+        ' unable ' in content_string or \
+        'sorry ' in content_string or \
+        'an AI language model' in content_string or \
+        'ขออภัย' in content_string
 
 
 def ask_and_call_typhoon(req):
@@ -204,7 +204,9 @@ def ask_and_call_typhoon(req):
     - Please answer the question based on the provided context below. 
     - Make sure not to make any changes to the context, if possible, when preparing answers to provide accurate responses. 
     - If the answer cannot be found in context just answer with word "CANTTTTT" only, do not try to make up an answer.
-    - your knowledge based on this retrieved document: {retrieved_document} 
+    - your knowledge based on this retrieved document: {retrieved_document}
+    - please always give the source of retrieved document to your answer at the end every time, if no source say no source
+    in this format "Source: source_from_retrieved document"
     """
     system_prompt_context = {"content": MESSAGE_SYSTEM_CONTENT, "role": "system"}
 
@@ -226,58 +228,66 @@ def ask_and_call_typhoon(req):
     # call vanna
     if  should_call_vanna(latest_response[-1]['content']):
         print("original latest_response[-1]['content'] :", latest_response[-1]['content'])
-        print('CANTT found')
-        print("Call VannaAI Successfully.")
+        print('CANTT found calling Vanna')
+        retrieved_table_markdown = '' # reset retrieved_table_markdown
         retrieved_table_markdown = call_vanna(query_text)
-        # call ask with new prompt that fit vanna
-        MESSAGE_SYSTEM_VANNA_CONTENT = f"""
-        - You are a an AI assistance service agent that helps helps and provide information to support business team such as marketing,
-        sales of Exxon Mobil Company focusing on Lubricants with answering questions. 
-        - if there's thai character then answer in thai 
-        - Please answer the question based on the provided context below. 
-        - Make sure not to make any changes to the context, if possible, when preparing answers to provide accurate responses. 
-        - If the answer cannot be found in context, just politely say that you do not know, do not try to make up an answer.
-        - your knowledge based on this markdown table: {retrieved_table_markdown} 
-        """
-        system_prompt_vanna_context = {"content": MESSAGE_SYSTEM_VANNA_CONTENT, "role": "system"}
+        print("Call VannaAI Successfully.")
+        if retrieved_table_markdown is None: # vanna dunno
+            print(". . . . . .VannaAI did not know the query. . . . . .")
+        else:
+            # call ask with new prompt that fit vanna
+            MESSAGE_SYSTEM_VANNA_CONTENT = f"""
+            - You are a an AI assistance service agent that helps helps and provide information to support business team such as marketing,
+            sales of Exxon Mobil Company focusing on Lubricants with answering questions. 
+            - if there's thai character then answer in thai 
+            - you must always say the source is from database at the end of your answer too every time in format like this Source: Database
+            - Please answer the question based on the provided context below. 
+            - Make sure not to make any changes to the context, if possible, when preparing answers to provide accurate responses. 
+            - If the answer cannot be found in context, just politely say that you do not know, do not try to make up an answer.
+            - your knowledge based on this markdown table: {retrieved_table_markdown} 
+            """
+            system_prompt_vanna_context = {"content": MESSAGE_SYSTEM_VANNA_CONTENT, "role": "system"}
 
-        chat_context = [system_prompt_vanna_context]
-        b = call_typhoon(query_text, chat_context)
-        temp_list_context = context_list_context
-        temp_list_context.pop()
-        temp_list_context.append(b[-1])
-        context_list_context = temp_list_context
-        
-        print('vanna', context_list_context[-1])
-        return context_list_context
+            chat_context = [system_prompt_vanna_context]
+            b = call_typhoon(query_text, chat_context)
+            temp_list_context = context_list_context
+            temp_list_context.pop()
+            temp_list_context.append(b[-1])
+            context_list_context = temp_list_context
+            
+            print('vanna', context_list_context[-1])
+            return context_list_context
     else:
         # return nornaml case
+        print(MESSAGE_SYSTEM_CONTENT)
+        print()
         print('normal', latest_response[-1])
+        print()
         return latest_response
 
 # ===============================================================================================================================================================================
 app = Flask(__name__)
-cors = CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 # ===============================================================================================================================================================================
 
 # controller
 @app.route("/")
+@cross_origin(origin='*',headers=['access-control-allow-origin','Content-Type'])
 def index():
     return "welcome to LLM service"
 
 
-
-
 @app.route("/rag", methods=["POST"])
+@cross_origin(origin='*',headers=['access-control-allow-origin','Content-Type'])
 def rag():  
     rag_preparing()
     return "done RAG", 201
 
 
 @app.route("/ask-typhoon", methods=["POST"])
-@cross_origin()
+@cross_origin(origin='*',headers=['access-control-allow-origin','Content-Type'])
 def ask_typhoon():
 
     # rag_preparing()
