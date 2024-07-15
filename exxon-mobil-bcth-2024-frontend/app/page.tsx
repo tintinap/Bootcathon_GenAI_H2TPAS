@@ -108,10 +108,10 @@ export default function Home() {
         </div>
         {/* AI */}
         <div
-            className="hidden md:flex mx-auto p-2 bg-[#DE000C] items-center text-white leading-none lg:rounded-full lg:inline-flex"
+            className="hidden md:flex mx-auto p-2 bg-[#f5f5f5] items-center text-[#737373] leading-none lg:rounded-full lg:inline-flex"
             role="alert"
           >
-            <span className="flex rounded-full bg-[#C40000] uppercase px-2 py-1 text-xs font-bold mr-3">
+            <span className="flex rounded-full bg-[#d4d4d4] uppercase px-2 py-1 text-xs font-bold mr-3">
               NOTICE
             </span>
             <span className="font-semibold mr-2 text-left flex-auto">
