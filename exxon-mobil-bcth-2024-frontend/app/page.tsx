@@ -80,7 +80,15 @@ export default function Home() {
   async function investigateData(data: IChatHistory[]) {
     let tmp: string = await data[data.length - 1].content;
 
-    if (tmp.includes("Source: Database") || tmp.includes("Sorry") || tmp.includes("ขอโทษ")) {
+    if (
+      tmp.includes("Source: Database") ||
+      tmp.includes("Sorry") ||
+      tmp.includes("sorry") ||
+      tmp.includes("ขอโทษ") ||
+      tmp.includes("ไม่สามารถ") ||
+      tmp.includes("Apologize") || 
+      tmp.includes("apologize")
+    ) {
       return data[data.length - 1];
     } else {
       return {

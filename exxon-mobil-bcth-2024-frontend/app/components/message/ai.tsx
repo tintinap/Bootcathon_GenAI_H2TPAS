@@ -26,11 +26,11 @@ export default function MessageAI({
     return text
       .replace(
         urlPattern,
-        '<a href="$1" className="underline" target="_blank" rel="noopener noreferrer">$1</a>'
+        '<a href="$1" class="underline" target="_blank" rel="noopener noreferrer">$1</a>'
       )
       .replace(
         wwwPattern,
-        '$1<a href="http://$2" className="underline" target="_blank" rel="noopener noreferrer">$2</a>'
+        '$1<a href="http://$2" class="underline" target="_blank" rel="noopener noreferrer">$2</a>'
       );
   };
 
