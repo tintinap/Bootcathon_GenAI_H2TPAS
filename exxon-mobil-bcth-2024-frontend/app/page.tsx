@@ -284,7 +284,7 @@ export default function Home() {
           {isLoading && (
             <SparklesText
               className="text-center !text-transparent py-4"
-              text="......."
+              text="· · · / G E N E R A T I N G / · · ·"
               // text="· · ·  G E N E R A T I N G  · · ·"
             />
           )}
