@@ -86,7 +86,7 @@ export default function Home() {
       tmp.includes("sorry") ||
       tmp.includes("ขอโทษ") ||
       tmp.includes("ไม่สามารถ") ||
-      tmp.includes("Apologize") || 
+      tmp.includes("Apologize") ||
       tmp.includes("apologize")
     ) {
       return data[data.length - 1];
@@ -106,6 +106,27 @@ export default function Home() {
         <div>
           <img src="/logo.svg" />
         </div>
+        {/* AI */}
+        <div
+            className="hidden md:flex mx-auto p-2 bg-[#DE000C] items-center text-white leading-none lg:rounded-full lg:inline-flex"
+            role="alert"
+          >
+            <span className="flex rounded-full bg-[#C40000] uppercase px-2 py-1 text-xs font-bold mr-3">
+              NOTICE
+            </span>
+            <span className="font-semibold mr-2 text-left flex-auto">
+              You're chatting with an AI. Please note, the information provided
+              may not be accurate.
+            </span>
+            <svg
+              className="fill-current opacity-75 h-4 w-4"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+            >
+              <path d="M12.95 10.707l.707-.707L8 4.343 6.586 5.757 10.828 10l-4.242 4.243L8 15.657l4.95-4.95z" />
+            </svg>
+          </div>
+          {/*  */}
         <div>
           <img src="/user.png" />
         </div>
@@ -115,6 +136,7 @@ export default function Home() {
           box-shadow: 0px 4px 24px -4px rgba(240, 0, 18, 0.8);
         }
       `}</style>
+
       <section className="flex justify-center relative h-[calc(100%-80px)] bg-white">
         <div className="flex flex-row md:flex-col gap-6 bg-[#fff] border border-[#E5E5E5] absolute left-6 top-6 rounded-3xl py-4">
           <div className="px-4">
@@ -266,6 +288,7 @@ export default function Home() {
             />
           )}
         </div>
+
         <div className="absolute bottom-0 w-full max-w-[1024px] h-[20%]">
           <Search onClick={() => askExxy()} />
           <textarea
