@@ -73,7 +73,7 @@ def rag_preparing():
             "id": re.sub("[^0-9a-zA-Z_-]","_",f"{chunks[i].metadata['source']}-{i}"),
             "content": chunks[i].page_content,   
             "sourcepage": chunks[i].metadata['page'],
-            "sourcefile": chunks[i].metadata['source'][len(DATA_PATH)-1:]
+            "source": chunks[i].metadata['source'][len(DATA_PATH)-1:],
         }
         chuncks_list.append(chunk)
     print("creating chunks list=============")
@@ -81,34 +81,35 @@ def rag_preparing():
     print("creating chunks list=============")
 
 
-    # embedding to vector
-    embed_func = LangchainEmbedding(get_embedding_function())
-    for chk in chuncks_list:
-        chk['content_vector'] = embed_func.get_text_embedding(chk['content'])
-    print("embedding to vector", len(chuncks_list[0]['content_vector']))
+    # # embedding to vector
+    # embed_func = LangchainEmbedding(get_embedding_function())
+    # for chk in chuncks_list:
+    #     chk['content_vector'] = embed_func.get_text_embedding(chk['content'])
+    # print("embedding to vector", len(chuncks_list[0]['content_vector']))
 
-    # create a new DB from the documents.
-    db = Chroma.from_documents(chunks, get_embedding_function(), persist_directory=CHROMA_PATH)
+    # create and save vector DB from the documents.
+    # if os.path.exists(CHROMA_PATH):
+    #     shutil.rmtree(CHROMA_PATH)
+    #     print('remove tree and creating new')
+    #     Chroma.from_documents(documents=chunks, embedding=get_embedding_function(), persist_directory=f"./{CHROMA_PATH}")
 
-    if os.path.exists(CHROMA_PATH):
-        shutil.rmtree(CHROMA_PATH)
-
-        db.persist()
-        print(f"Saved {len(chunks)} chunks to {CHROMA_PATH}")
+    Chroma.from_documents(documents=chunks, embedding=get_embedding_function(), persist_directory=f"./{CHROMA_PATH}")
+    #     db.persist()
+    print(f"Saved {len(chunks)} chunks to {CHROMA_PATH}")
 
     print("=================== done ===========================")
 
 
 # ============ call_typhoon ==================================================================
 def format_retrieved_documents(data_list: list[tuple[Document]]) -> str:
-    print('data_list:', data_list)
+    print('data_list length :', len(data_list))
     retrieved_documents = ""
     for item in data_list:
         # Extract the 'content' and 'sourcepage' values
-        print('item:', item)
+        # print('item:', item)
         content = item[0].page_content
-        source = f"{item[0].metadata['source']}-page{item[0].metadata['page']}"
-        retrieved_documents += "source -> " + source + ", content -> " + content + "\n"
+        source = f"{item[0].metadata['source'][len(DATA_PATH)-1:]}"
+        retrieved_documents += "source: " + source + ", content: " + content + "\n"
         print()
         print("source: " + source)
         print()
@@ -116,16 +117,21 @@ def format_retrieved_documents(data_list: list[tuple[Document]]) -> str:
 
 def search_vectorstores(query_text:str) -> str:
     try:
-        db = Chroma(persist_directory=CHROMA_PATH, embedding_function=get_embedding_function())
+        db = Chroma(persist_directory=f"./{CHROMA_PATH}", embedding_function=get_embedding_function())
+        
         embed_func = LangchainEmbedding(get_embedding_function())
         # text to vector space with 768 dimensions
         query_vector = embed_func.get_text_embedding(query_text)
         results = db.similarity_search_by_vector_with_relevance_scores(query_vector, k=3)
-        
+        # validate result before go to format
+        results = filter_results_by_score(results, 30)
         return format_retrieved_documents(results)
     except:
-        print('error in search vector stores')
-        return ''
+        print("Error in search_vectorstores")
+        raise ValueError
+    
+def filter_results_by_score(results, threshold):
+    return [(doc, score) for doc, score in results if score >= threshold]
 
 def call_vanna(query_text:str):
 
@@ -197,17 +203,20 @@ def ask_and_call_typhoon(req):
     retrieved_document = search_vectorstores(query_text)
     print("Search vector successfully.")
 
-    MESSAGE_SYSTEM_CONTENT = f"""
+    ORIGINAL_SYSTEM_CONTENT = """
     - You are a an AI assistance service agent that helps helps and provide information to support business team such as marketing,
     sales of Exxon Mobil Company focusing on Lubricants with answering questions.
     - if there's thai character then answer in thai 
     - Please answer the question based on the provided context below. 
     - Make sure not to make any changes to the context, if possible, when preparing answers to provide accurate responses. 
-    - If the answer cannot be found in context just answer with word "CANTTTTT" only, do not try to make up an answer.
-    - your knowledge based on this retrieved document: {retrieved_document}
-    - please always give the source of retrieved document to your answer at the end every time, if no source say no source
-    in this format "Source: source_from_retrieved document"
     """
+
+    MESSAGE_SYSTEM_CONTENT = f"""
+    {ORIGINAL_SYSTEM_CONTENT}
+    - If the answer cannot be found in etrieved document just answer with word "CANTTTTT" only, do not try to make up an answer.
+    - your knowledge based on this retrieved document=>{'{'} {retrieved_document} {'}'} only not your model
+    """
+    # - always give me the source from retrieved document at the end. 
     system_prompt_context = {"content": MESSAGE_SYSTEM_CONTENT, "role": "system"}
 
 
@@ -234,14 +243,16 @@ def ask_and_call_typhoon(req):
         print("Call VannaAI Successfully.")
         if retrieved_table_markdown is None: # vanna dunno
             print(". . . . . .VannaAI did not know the query. . . . . .")
+            print()
+            print(system_prompt_context)
+            print()
+            latest_response = call_typhoon(query_text, [system_prompt_context])
+            return latest_response
         else:
             # call ask with new prompt that fit vanna
             MESSAGE_SYSTEM_VANNA_CONTENT = f"""
-            - You are a an AI assistance service agent that helps helps and provide information to support business team such as marketing,
-            sales of Exxon Mobil Company focusing on Lubricants with answering questions. 
-            - if there's thai character then answer in thai 
+            {ORIGINAL_SYSTEM_CONTENT}
             - you must always say the source is from database at the end of your answer too every time in format like this Source: Database
-            - Please answer the question based on the provided context below. 
             - Make sure not to make any changes to the context, if possible, when preparing answers to provide accurate responses. 
             - If the answer cannot be found in context, just politely say that you do not know, do not try to make up an answer.
             - your knowledge based on this markdown table: {retrieved_table_markdown} 
@@ -257,13 +268,14 @@ def ask_and_call_typhoon(req):
             
             print('vanna', context_list_context[-1])
             return context_list_context
-    else:
-        # return nornaml case
-        print(MESSAGE_SYSTEM_CONTENT)
-        print()
-        print('normal', latest_response[-1])
-        print()
-        return latest_response
+    # else:
+    # return nornaml case
+    print()
+    print(MESSAGE_SYSTEM_CONTENT)
+    print()
+    print('normal', latest_response[-1])
+    print()
+    return latest_response
 
 # ===============================================================================================================================================================================
 app = Flask(__name__)

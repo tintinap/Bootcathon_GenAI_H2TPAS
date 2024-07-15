@@ -27,7 +27,7 @@ export default function Home() {
   useEffect(() => {
     if (!rag) {
       try {
-        fetch("http://127.0.0.1:5000/rag", {
+        fetch("", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
