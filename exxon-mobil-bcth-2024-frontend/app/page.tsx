@@ -80,13 +80,13 @@ export default function Home() {
   async function investigateData(data: IChatHistory[]) {
     let tmp: string = await data[data.length - 1].content;
 
-    if (tmp.includes("Source: Database") || tmp.includes("Sorry")) {
+    if (tmp.includes("Source: Database") || tmp.includes("Sorry") || tmp.includes("ขอโทษ")) {
       return data[data.length - 1];
     } else {
       return {
         content:
           tmp +
-          "\nSource: https://www.mobil.com/en/sap/our-products/products/mobil-super-2000-10w40",
+          "\n\nSource: https://www.mobil.com/en/sap/our-products/products/mobil-super-2000-10w40",
         role: "assistant",
       };
     }

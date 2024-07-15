@@ -19,17 +19,32 @@ export default function MessageAI({
       });
   };
 
+  const linkifyText = (text: string) => {
+    const urlPattern =
+      /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
+    const wwwPattern = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
+    return text
+      .replace(
+        urlPattern,
+        '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
+      )
+      .replace(
+        wwwPattern,
+        '$1<a href="http://$2" target="_blank" rel="noopener noreferrer">$2</a>'
+      );
+  };
+
   return (
     <div className="flex gap-4 justify-between items-start w-full p-4 rounded-2xl bg-white mb-4">
       <div className="flex gap-4 items-start">
         <img src="/ai_star.svg" />
         <div>
           {is_lastest ? (
-            <TypingAnimation text={text} />
+            <TypingAnimation text={linkifyText(text)} />
           ) : (
             text.split("\n").map((line, index) => (
               <React.Fragment key={index}>
-                {line}
+                {linkifyText(line)}
                 <br />
               </React.Fragment>
             ))
