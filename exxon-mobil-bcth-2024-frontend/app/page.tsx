@@ -203,11 +203,11 @@ export default function Home() {
                 <SuggestCard
                   onClick={() => {
                     askExxy(
-                      "What are Mobil Super AIO Series Product features ?"
+                      "What are Mobil Super FF Series Product features ?"
                     );
                   }}
                 >
-                  What are Mobil Super AIO Series Product features ?
+                  What are Mobil Super FF Series Product features ?
                 </SuggestCard>
                 <SuggestCard
                   onClick={() => {
@@ -261,7 +261,7 @@ export default function Home() {
         <div className="absolute bottom-0 w-full max-w-[1024px] h-[20%]">
           <Search onClick={() => askExxy()} />
           <textarea
-            className="w-full h-full p-6 rounded-tl-[32px] rounded-tr-[32px] border outline-0 text-[#737373]"
+            className="resize-none w-full h-full p-6 rounded-tl-[32px] rounded-tr-[32px] border outline-0 text-[#737373]"
             placeholder="Type your prompt e.g. Total sale of Mobil Delvac Legend"
             value={prompt}
             onChange={(e: any) => setPrompt(e.target.value)}
