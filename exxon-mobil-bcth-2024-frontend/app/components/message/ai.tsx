@@ -44,7 +44,9 @@ export default function MessageAI({
           ) : (
             text.split("\n").map((line, index) => (
               <React.Fragment key={index}>
-                {linkifyText(line)}
+                <span
+                  dangerouslySetInnerHTML={{ __html: linkifyText(line) }}
+                ></span>
                 <br />
               </React.Fragment>
             ))
