@@ -87,7 +87,8 @@ export default function Home() {
       tmp.includes("ขอโทษ") ||
       tmp.includes("ไม่สามารถ") ||
       tmp.includes("Apologize") ||
-      tmp.includes("apologize")
+      tmp.includes("apologize") ||
+      tmp.includes("แหล่งอ้างอิง")
     ) {
       return data[data.length - 1];
     } else {
