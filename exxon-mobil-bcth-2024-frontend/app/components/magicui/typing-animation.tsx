@@ -38,7 +38,7 @@ export default function TypingAnimation({
     <h1 className={cn("tracking-[-0.02em]", className)}>
       {displayedText.split("\n").map((line, index) => (
         <React.Fragment key={index}>
-          {line}
+          <span dangerouslySetInnerHTML={{ __html: line }}></span>
           <br />
         </React.Fragment>
       ))}
