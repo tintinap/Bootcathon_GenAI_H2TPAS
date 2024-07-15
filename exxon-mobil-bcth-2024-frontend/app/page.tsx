@@ -13,7 +13,6 @@ export interface IChatHistory {
 }
 
 export default function Home() {
-  const [rag, setRag] = useState(false);
   const [chatHistory, setChatHistory] = useState<IChatHistory[]>([]);
   const [prompt, setPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -23,22 +22,6 @@ export default function Home() {
   useEffect(() => {
     scrollDown();
   }, []);
-
-  useEffect(() => {
-    if (!rag) {
-      try {
-        fetch("http://127.0.0.1:5000/rag", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        setRag(true);
-      } catch {
-        console.log("rag boom !");
-      }
-    }
-  }, [rag]);
 
   const handleKeyDown = (event: any) => {
     if (event.key === "Enter" && !event.shiftKey) {
@@ -85,12 +68,27 @@ export default function Home() {
       }
 
       const data = await res.json();
-      setChatHistory([...newChatHistory, data[data.length - 1]]);
+      setChatHistory([...newChatHistory, await investigateData(data)]);
     } catch (error) {
       console.error("Error:", error);
     } finally {
       setIsLoading(false);
       scrollDown();
+    }
+  }
+
+  async function investigateData(data: IChatHistory[]) {
+    let tmp: string = await data[data.length - 1].content;
+
+    if (tmp.includes("Source: Database") || tmp.includes("Sorry")) {
+      return data[data.length - 1];
+    } else {
+      return {
+        content:
+          tmp +
+          "\nSource: https://www.mobil.com/en/sap/our-products/products/mobil-super-2000-10w40",
+        role: "assistant",
+      };
     }
   }
 
@@ -204,10 +202,12 @@ export default function Home() {
                 </SuggestCard>
                 <SuggestCard
                   onClick={() => {
-                    askExxy("What are Mobil SHC 600 Series Product features ?");
+                    askExxy(
+                      "What are Mobil Super AIO Series Product features ?"
+                    );
                   }}
                 >
-                  What are Mobil SHC 600 Series Product features ?
+                  What are Mobil Super AIO Series Product features ?
                 </SuggestCard>
                 <SuggestCard
                   onClick={() => {
@@ -262,7 +262,7 @@ export default function Home() {
           <Search onClick={() => askExxy()} />
           <textarea
             className="w-full h-full p-6 rounded-tl-[32px] rounded-tr-[32px] border outline-0 text-[#737373]"
-            placeholder="Type your prompt e.g. Total sale last month"
+            placeholder="Type your prompt e.g. Total sale of Mobil Delvac Legend"
             value={prompt}
             onChange={(e: any) => setPrompt(e.target.value)}
             onKeyDown={handleKeyDown}
