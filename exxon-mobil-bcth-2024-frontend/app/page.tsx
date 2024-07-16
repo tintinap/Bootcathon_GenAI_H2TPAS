@@ -202,7 +202,7 @@ export default function Home() {
                 Welcome
               </h2>
               <p className="text-[#737373] text-center text-2xl tracking-[-0.12px]">
-                GenAI for ExxonMobil Business People
+                AI Assistant for ExxonMobil Business People
               </p>
               <div className="flex gap-6 justify-evenly py-10 flex-wrap">
                 <SuggestCard

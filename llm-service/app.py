@@ -168,7 +168,7 @@ def call_typhoon(query_text, context_list):
 def should_call_vanna(content_string:str) -> bool:
     return 'CANTTT' in content_string or \
         ' unable ' in content_string or \
-        'sorry ' in content_string or \
+        'sorry' in content_string or \
         'an AI language model' in content_string or \
         'ขออภัย' in content_string
 
@@ -205,9 +205,9 @@ def ask_and_call_typhoon(req):
     - Make sure not to make any changes to the context, if possible, when preparing answers to provide accurate responses. 
     - If the answer cannot be found in context just answer with word "CANTTTTT" only, do not try to make up an answer.
     - your knowledge based on this retrieved document: {retrieved_document}
-    - please always give the source of retrieved document to your answer at the end every time, if no source say no source
-    in this format "Source: source_from_retrieved document"
     """
+    #     - please always give the source of retrieved document to your answer at the end every time, if no source say no source
+    # in this format "Source: source_from_retrieved document"
     system_prompt_context = {"content": MESSAGE_SYSTEM_CONTENT, "role": "system"}
 
 
@@ -234,6 +234,27 @@ def ask_and_call_typhoon(req):
         print("Call VannaAI Successfully.")
         if retrieved_table_markdown is None: # vanna dunno
             print(". . . . . .VannaAI did not know the query. . . . . .")
+            MESSAGE_SYSTEM_VANNA_CONTENT = f"""
+            - You are a an AI assistance service agent that helps helps and provide information to support business team such as marketing,
+            sales of Exxon Mobil Company focusing on Lubricants with answering questions.
+            - if there's thai character then answer in thai 
+            - Please answer the question based on the provided context below. 
+            - Make sure not to make any changes to the context, if possible, when preparing answers to provide accurate responses. 
+            - If the answer cannot be found in context, just politely say that you do not know, do not try to make up an answer.
+            - your knowledge based on this retrieved document: 
+            - please always give the source of retrieved document to your answer at the end every time, if no source say no source
+            in this format "Source: source_from_retrieved document"
+            """
+            system_prompt_vanna_context = {"content": MESSAGE_SYSTEM_VANNA_CONTENT, "role": "system"}
+            chat_context = [system_prompt_vanna_context]
+            b = call_typhoon(query_text, chat_context)
+            temp_list_context = context_list_context
+            temp_list_context.pop()
+            temp_list_context.append(b[-1])
+            context_list_context = temp_list_context
+            
+            print('vanna dunno', context_list_context[-1])
+            return context_list_context
         else:
             # call ask with new prompt that fit vanna
             MESSAGE_SYSTEM_VANNA_CONTENT = f"""
